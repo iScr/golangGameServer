@@ -35,6 +35,7 @@ func handleClient(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr())
 	dayTime := time.Now().String()
 	fmt.Println(dayTime)
+	dayTime
 
 }
 
