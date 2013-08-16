@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "encoding/binary"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"os"
@@ -48,12 +48,12 @@ func handleClient(conn net.Conn) {
 		if !isHeadLoaded {
 			if readLen > Head {
 				fmt.Println("收到数据")
-				// lenSlice := buffer[0:4]
-				// bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
-				// cmd = int(binary.BigEndian.Uint32(buffer[4:7]))
+				lenSlice := buffer[0:4]
+				bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
+				cmd = int(binary.BigEndian.Uint32(buffer[4:7]))
 
-				// fmt.Println("包体长度 %d", bodyLen)
-				// fmt.Println("cmd: %d", cmd)
+				fmt.Println("包体长度 %d", bodyLen)
+				fmt.Println("cmd: %d", cmd)
 				isHeadLoaded = true
 			}
 		}
