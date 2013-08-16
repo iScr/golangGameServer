@@ -46,7 +46,7 @@ func handleClient(conn net.Conn) {
 		conn.Write([]byte("return"))
 
 		if !isHeadLoaded {
-			if readLen >= Head {
+			if readLen > Head {
 				fmt.Println("收到数据")
 				// lenSlice := buffer[0:4]
 				// bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
@@ -54,10 +54,18 @@ func handleClient(conn net.Conn) {
 
 				// fmt.Println("包体长度 %d", bodyLen)
 				// fmt.Println("cmd: %d", cmd)
+				isHeadLoaded = true
 			}
+		}
+		if isHeadLoaded {
+
 		}
 
 	}
+}
+
+func parseData(data []byte) {
+
 }
 
 func checkError(err error) {
