@@ -35,7 +35,15 @@ func handleClient(conn net.Conn) {
 	isHeadLoaded := false
 	bodyLen := 0
 	cmd := 0
+	
 	readLen := 0
+
+	func reset() {
+		isHeadLoaded = false
+		bodyLen = 0
+		cmd = 0
+	}
+
 	for {
 		length, err := conn.Read(buffer)
 		readLen += length
