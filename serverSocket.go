@@ -20,6 +20,7 @@ const (
 
 func main() {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:7981")
+	checkError(err)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 
@@ -38,55 +39,49 @@ func handleClient(conn net.Conn) {
 	bodyLen := 0
 	reader := bufio.NewReader(conn)
 	defer conn.Close()
+Out:
 	for {
-		// buffer := make([]byte, 1024)
-		// length, _ := conn.Read(buffer)
-		// fmt.Println(length)
-		// if length < 8 {
-		// 	continue
-		// }
-		// if err != nil {
-		// 	fmt.Println(err)
-		// 	break
-		// }
-		// fmt.Println(bodyLen)
-		// fmt.Println(length)
-
 		if !isHeadLoaded {
-			lenSl := make([]byte, 4)
+			headLenSl := make([]byte, 4)
 			fmt.Println("读取包头....")
-			len, err := reader.Read(lenSl)
-			if err != nil {
-				fmt.Println("读取包头出错, ", err.Error())
-				break
+
+			//已经读取的包头字节数
+			readedHeadLen := 0
+
+			for readedHeadLen < 4 {
+				len, err := reader.Read(headLenSl)
+				if err != nil {
+					fmt.Println("读取包头出错, ", err.Error())
+					break Out
+				}
+				readedHeadLen += len
 			}
-			fmt.Println("读取到的包头长度: ", len)
 
-			bodyLen = int(binary.BigEndian.Uint32(lenSl))
-			fmt.Println("包体字节长度: ", bodyLen)
+			bodyLen = int(binary.BigEndian.Uint32(headLenSl))
+			fmt.Println("读取包头成功, 包体字节长度: ", bodyLen)
 			isHeadLoaded = true
-			// fmt.Println("收到数据")
-			// lenSlice := buffer[0:4]
-			// bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
-
-			// fmt.Println("包体长度 %d", bodyLen)
-			// isHeadLoaded = true
 		}
+
 		if isHeadLoaded {
 			fmt.Println("解析包体")
 			bodySl := make([]byte, bodyLen)
-			len, err := reader.Read(bodySl)
-			if err != nil {
-				fmt.Println("读取包体出错,: ", err.Error())
-				break
+
+			//已经读取的包体字节数
+			readedBodyLen := 0
+
+			for readedBodyLen < bodyLen {
+				len, err := reader.Read(bodySl)
+				if err != nil {
+					fmt.Println("读取包体出错,: ", err.Error())
+					break Out
+				}
+				readedBodyLen += len
 			}
-			fmt.Println("读取到的包体长度: ", len)
 
+			fmt.Println("读取包体完成,包体字节长度: ", readedBodyLen)
 			isHeadLoaded = false
-
 		}
 	}
-
 }
 
 func parseData(data []byte) {
