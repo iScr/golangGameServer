@@ -1,17 +1,14 @@
 package main
 
 import (
-	"bufio"
-	"encoding/binary"
+	// "encoding/binary"
 	"fmt"
 	"net"
 	"os"
 )
 
 const (
-	Len  = 4
-	Cmd  = 4
-	Head = Len + Cmd
+	Head = 4
 )
 
 func main() {
@@ -31,47 +28,30 @@ func main() {
 
 func handleClient(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr())
-	// var readBuffer []byte
-	readBuffer := make([]byte, 1024)
-	// buffer := make([]byte, 1024)
+	buffer := make([]byte, 1024)
 	isHeadLoaded := false
 	bodyLen := 0
-	// cmd := 0
-
-	readLen := 0
 
 	for {
-
-		length, err := conn.Read(readBuffer[readLen:])
-		readLen += length
+		length, err := conn.Read(buffer)
 		checkError(err)
-		fmt.Println("readLen: ", readLen)
-		fmt.Println("bodyLen: ", bodyLen)
-		fmt.Println(string(readBuffer[0:readLen]))
-		// fmt.Println("cmd: ", cmd)
-		conn.Write([]byte("return"))
+		fmt.Println(bodyLen)
+		fmt.Println(length)
 
 		if !isHeadLoaded {
-			continue
-			if readLen > Head {
-				fmt.Println("收到数据")
-				lenSlice := readBuffer[0:4]
-				bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
-				cmd = int(binary.BigEndian.Uint32(readBuffer[4:8]))
 
-				fmt.Println("包体长度 %d", bodyLen)
-				// fmt.Println("cmd: %d", cmd)
-				isHeadLoaded = true
-			}
+			// fmt.Println("收到数据")
+			// lenSlice := buffer[0:4]
+			// bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
+
+			// fmt.Println("包体长度 %d", bodyLen)
+			// isHeadLoaded = true
 		}
-		if isHeadLoaded {
-			if readLen >= bodyLen {
-
-			}
-
-		}
+	}
+	if isHeadLoaded {
 
 	}
+
 }
 
 func parseData(data []byte) {
