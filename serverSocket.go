@@ -1,5 +1,11 @@
 package main
 
+/**
+* 这是个简易的游戏服务器
+* 每条包结构会有个包头标志剩下的包体长度
+* 会进行断包粘包处理.
+ */
+
 import (
 	// "encoding/binary"
 	"fmt"
@@ -23,7 +29,6 @@ func main() {
 		}
 		go handleClient(conn)
 	}
-
 }
 
 func handleClient(conn net.Conn) {
