@@ -39,7 +39,10 @@ func handleClient(conn net.Conn) {
 
 	for {
 		length, err := conn.Read(buffer)
-		checkError(err)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
 		fmt.Println(bodyLen)
 		fmt.Println(length)
 
