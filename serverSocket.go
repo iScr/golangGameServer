@@ -62,6 +62,12 @@ func handleClient(conn net.Conn) {
 
 }
 
+type myBuf []byte
+
+func (m *myBuf) bytesAvailable() uint {
+	return len(m)
+}
+
 func parseData(data []byte) {
 
 }
