@@ -7,7 +7,8 @@ package main
  */
 
 import (
-	// "encoding/binary"
+	"bufio"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"os"
@@ -33,21 +34,37 @@ func main() {
 
 func handleClient(conn net.Conn) {
 	fmt.Println(conn.RemoteAddr())
-	buffer := make([]byte, 1024)
 	isHeadLoaded := false
 	bodyLen := 0
-
+	reader := bufio.NewReader(conn)
+	defer conn.Close()
 	for {
-		length, err := conn.Read(buffer)
-		if err != nil {
-			fmt.Println(err)
-			break
-		}
-		fmt.Println(bodyLen)
-		fmt.Println(length)
+		// buffer := make([]byte, 1024)
+		// length, _ := conn.Read(buffer)
+		// fmt.Println(length)
+		// if length < 8 {
+		// 	continue
+		// }
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	break
+		// }
+		// fmt.Println(bodyLen)
+		// fmt.Println(length)
 
 		if !isHeadLoaded {
+			lenSl := make([]byte, 4)
+			fmt.Println("读取包头....")
+			len, err := reader.Read(lenSl)
+			if err != nil {
+				fmt.Println("读取包头出错, ", err.Error())
+				break
+			}
+			fmt.Println("读取到的包头长度: ", len)
 
+			bodyLen = int(binary.BigEndian.Uint32(lenSl))
+			fmt.Println("包体字节长度: ", bodyLen)
+			isHeadLoaded = true
 			// fmt.Println("收到数据")
 			// lenSlice := buffer[0:4]
 			// bodyLen = int(binary.BigEndian.Uint32(lenSlice)) - Head
@@ -55,17 +72,21 @@ func handleClient(conn net.Conn) {
 			// fmt.Println("包体长度 %d", bodyLen)
 			// isHeadLoaded = true
 		}
+		if isHeadLoaded {
+			fmt.Println("解析包体")
+			bodySl := make([]byte, bodyLen)
+			len, err := reader.Read(bodySl)
+			if err != nil {
+				fmt.Println("读取包体出错,: ", err.Error())
+				break
+			}
+			fmt.Println("读取到的包体长度: ", len)
+
+			isHeadLoaded = false
+
+		}
 	}
-	if isHeadLoaded {
 
-	}
-
-}
-
-type myBuf []byte
-
-func (m *myBuf) bytesAvailable() uint {
-	return len(m)
 }
 
 func parseData(data []byte) {
