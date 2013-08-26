@@ -24,6 +24,7 @@ var (
 )
 
 func main() {
+	fmt.Println(os.Args[0])
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:7981")
 	checkError(err)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
