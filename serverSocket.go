@@ -12,10 +12,15 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 )
 
 const (
 	Head = 4
+)
+
+var (
+	ClientMap map[int]net.Conn = make(map[int]net.Conn)
 )
 
 func main() {
@@ -23,22 +28,32 @@ func main() {
 	checkError(err)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
+	clientIndex := 0
 
 	for {
+		clientIndex++
 		conn, err := listener.Accept()
 		if err != nil {
 			continue
 		}
-		go handleClient(conn)
+		go handleClient(conn, clientIndex)
 	}
 }
 
-func handleClient(conn net.Conn) {
-	fmt.Println(conn.RemoteAddr())
+func handleClient(conn net.Conn, index int) {
+	ClientMap[index] = conn
+	fmt.Println("新用户连接, 来自: ", conn.RemoteAddr(), "index: ", index)
+	sendMsgToAll("new user added, index: " + strconv.Itoa(index))
 	isHeadLoaded := false
 	bodyLen := 0
 	reader := bufio.NewReader(conn)
-	defer conn.Close()
+	fc := func() {
+		conn.Close()
+		delete(ClientMap, index)
+		fmt.Println("移除序号为: ", index, "的客户端")
+	}
+	defer fc()
+
 Out:
 	for {
 		if !isHeadLoaded {
@@ -81,6 +96,15 @@ Out:
 			fmt.Println("读取包体完成,包体字节长度: ", readedBodyLen)
 			isHeadLoaded = false
 		}
+	}
+}
+
+func sendMsgToAll(msg string) {
+	for key, value := range ClientMap {
+		writer := bufio.NewWriter(value)
+		writer.WriteString(msg)
+		writer.Flush()
+		fmt.Println(key, value)
 	}
 }
 
