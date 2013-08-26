@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strconv"
+	// "strconv"
 )
 
 const (
@@ -43,7 +43,7 @@ func main() {
 func handleClient(conn net.Conn, index int) {
 	ClientMap[index] = conn
 	fmt.Println("新用户连接, 来自: ", conn.RemoteAddr(), "index: ", index)
-	sendMsgToAll("new user added, index: " + strconv.Itoa(index))
+	// sendMsgToAll("new user added, index: " + strconv.Itoa(index))
 	isHeadLoaded := false
 	bodyLen := 0
 	reader := bufio.NewReader(conn)
