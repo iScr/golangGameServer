@@ -104,6 +104,7 @@ func sendMsgToAll(msg string) {
 	for _, value := range ClientMap {
 		writer := bufio.NewWriter(value)
 		msgLen := len(msg)
+		//写入2个字节字符串长度.以供flash读取便利
 		buf := make([]byte, 2)
 		binary.BigEndian.PutUint16(buf, uint16(msgLen))
 		writer.Write(buf)
