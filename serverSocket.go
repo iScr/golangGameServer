@@ -7,6 +7,7 @@ package main
  */
 
 import (
+	"./client"
 	"bufio"
 	"encoding/binary"
 	"fmt"
@@ -20,7 +21,8 @@ const (
 )
 
 var (
-	ClientMap map[int]net.Conn = make(map[int]net.Conn)
+	ClientMap map[int]net.Conn      = make(map[int]net.Conn)
+	Ciients   map[int]client.Client = make(map[int]client.Client)
 )
 
 func main() {
@@ -32,11 +34,12 @@ func main() {
 	clientIndex := 0
 
 	for {
-		clientIndex++
 		conn, err := listener.Accept()
 		if err != nil {
+			fmt.Println("监听错误: ", err.Error())
 			continue
 		}
+		clientIndex++
 		go handleClient(conn, clientIndex)
 	}
 }
@@ -48,12 +51,12 @@ func handleClient(conn net.Conn, index int) {
 	isHeadLoaded := false
 	bodyLen := 0
 	reader := bufio.NewReader(conn)
-	fc := func() {
+
+	defer func() {
 		conn.Close()
 		delete(ClientMap, index)
 		fmt.Println("移除序号为: ", index, "的客户端")
-	}
-	defer fc()
+	}()
 
 Out:
 	for {
