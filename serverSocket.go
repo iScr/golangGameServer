@@ -22,7 +22,7 @@ const (
 
 var (
 	ClientMap map[int]net.Conn      = make(map[int]net.Conn)
-	Ciients   map[int]client.Client = make(map[int]client.Client)
+	Clients   map[int]client.Client = make(map[int]client.Client)
 )
 
 func main() {
@@ -45,6 +45,8 @@ func main() {
 }
 
 func handleClient(conn net.Conn, index int) {
+	c := client.Client{conn}
+	Clients[index] = c
 	ClientMap[index] = conn
 	fmt.Println("新用户连接, 来自: ", conn.RemoteAddr(), "index: ", index)
 	sendMsgToAll("new user added, index: " + strconv.Itoa(index))
