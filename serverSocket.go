@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"runtime"
 	"strconv"
 )
 
@@ -24,6 +25,8 @@ var (
 )
 
 func main() {
+	fmt.Println("CPU个数: ", runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	fmt.Println(os.Args[0])
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", "127.0.0.1:7981")
 	checkError(err)
